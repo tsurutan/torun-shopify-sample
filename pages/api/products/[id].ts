@@ -1,22 +1,10 @@
 import type {NextApiRequest, NextApiResponse} from 'next'
-import Shopify, {ApiVersion} from "@shopify/shopify-api";
+import Shopify from "@shopify/shopify-api";
 import {Product} from '@shopify/shopify-api/dist/rest-resources/2022-04/index.js';
+import {setupShopify} from "shopify/initializer";
 
-type Data = {
-  name: string
-}
 
-const {API_KEY, API_SECRET_KEY, SCOPES, SHOP, HOST, HOST_SCHEME} = process.env;
-
-Shopify.Context.initialize({
-  API_KEY: API_KEY!,
-  API_SECRET_KEY: API_SECRET_KEY!,
-  SCOPES: [SCOPES!],
-  HOST_NAME: HOST!,
-  HOST_SCHEME,
-  IS_EMBEDDED_APP: false,
-  API_VERSION: ApiVersion.April22
-});
+setupShopify()
 
 export default async function handler(
   req: NextApiRequest,

@@ -1,10 +1,34 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import fetch from "node-fetch";
 import {useRouter} from "next/router";
 
 const Product = () => {
   const [isShipped, setIsSipped] = useState(false)
+  const [isOrdered, setIsOrdered] = useState(false)
   const router = useRouter()
+  const id = router.query.id
+
+  useEffect(() => {
+    (async () => {
+      const orderId = localStorage.getItem(String(id));
+      if(!orderId) return;
+
+      const res = await fetch(`/api/orders/${orderId}`);
+      const data = await res.json();
+      if(!data) return;
+
+      setIsOrdered(true);
+
+      const fulfilledStatus = data.line_items?.[0]?.fulfillment_status;
+      if(fulfilledStatus === 'fulfilled') {
+        setIsSipped(true);
+      }
+    })()
+  })
+
+  if(isOrdered && !isShipped) {
+    return <div>Shopifyから商品を発送してください</div>
+  }
 
   return (<div>
     {
@@ -12,21 +36,25 @@ const Product = () => {
         <>
           <p>発送ありがとうございます。</p>
           <p>準備ができ次第、画像がアップロードされます。</p>
-
           <p>--------以下アップロード後--------</p>
-          <p>画像がアップロードされました。</p>
+          <p>画像がアップロードされました。画像を直接Shopifyへアップロードすることができます。</p>
           <p>本来はここに購入処理などが入ります。</p>
           <img height={300} src="https://blogger.googleusercontent.com/img/a/AVvXsEjyeJgJIrzCF5Ck3iDJAS25qLd7P02PixI-UWNgtSyq5YHPa9v5ngQgeJIjoRypNDVpQrAyKh3I4EZnFXMAgQIrsDfF5dCTNY_VPrOmkNWO18doT6xehVo70halIYqycSTnfxjffLXgcrGmRu-F4KweGragY9pRkKtvB40s7FrvuI4sUD0XRRkqh0pltw=s805" />
           <button onClick={async () => {
-            await fetch(`/api/products/${router.query.id}`, { method: "PATCH"})
+            await fetch(`/api/products/${id}`, { method: "PATCH"})
             alert("アップロードしました。Shopifyで確認してください。")
           }}>画像をアップロード</button>
         </>
         ) : (
         <>
-          <p>こちらの住所に商品を発送し、発送が完了しましたら完了ボタンを押してください</p>
-          <p>東京都目黒区大岡山32-2</p>
-          <button onClick={() => setIsSipped(true)}>発送完了</button>
+          <p>Torunへ商品を支給品として届ける必要があります。</p>
+          <button onClick={async () => {
+            const res = await fetch(`/api/orders/${id}`, { method: "POST"})
+            const data = await res.json();
+            localStorage.setItem(String(id), data.id);
+            alert("注文が完了しました。Shopifyで確認してください。")
+            setIsOrdered(true);
+          }}>Torunへの注文処理を行う</button>
         </>
       )
     }
