@@ -1,25 +1,12 @@
 import {NextApiRequest, NextApiResponse} from "next";
-import Shopify, {ApiVersion, AuthQuery} from "@shopify/shopify-api";
+import Shopify, {AuthQuery} from "@shopify/shopify-api";
+import {setupShopify} from "shopify/initializer";
 
-type Data = {
-  name: string
-}
-
-const { API_KEY, API_SECRET_KEY, SCOPES, SHOP, HOST, HOST_SCHEME } = process.env;
-
-Shopify.Context.initialize({
-  API_KEY: API_KEY!,
-  API_SECRET_KEY: API_SECRET_KEY!,
-  SCOPES: [SCOPES!],
-  HOST_NAME: HOST!,
-  HOST_SCHEME,
-  IS_EMBEDDED_APP: false,
-  API_VERSION: ApiVersion.April22
-});
+setupShopify()
 
 export default async (
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<any>
 ) => {
   const session = await Shopify.Auth.validateAuthCallback(req, res, req.query as unknown as AuthQuery);
 

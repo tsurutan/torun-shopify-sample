@@ -1,26 +1,13 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from 'next'
-import Shopify, {ApiVersion} from "@shopify/shopify-api";
+import type {NextApiRequest, NextApiResponse} from 'next'
+import Shopify from "@shopify/shopify-api";
+import {setupShopify} from "shopify/initializer";
 
-type Data = {
-  name: string
-}
-
-const { API_KEY, API_SECRET_KEY, SCOPES, SHOP, HOST, HOST_SCHEME } = process.env;
-
-Shopify.Context.initialize({
-  API_KEY: API_KEY!,
-  API_SECRET_KEY: API_SECRET_KEY!,
-  SCOPES: [SCOPES!],
-  HOST_NAME: HOST!,
-  HOST_SCHEME,
-  IS_EMBEDDED_APP: false,
-  API_VERSION: ApiVersion.April22
-});
+setupShopify();
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<any>
 ) {
   const shop = req.query.shop;
   const authRoute = await Shopify.Auth.beginAuth(req, res, shop as string, "/api/auth", false)
