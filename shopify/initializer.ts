@@ -12,6 +12,6 @@ export const setupShopify = () => {
     HOST_SCHEME,
     IS_EMBEDDED_APP: false,
     API_VERSION: ApiVersion.April22,
-    SESSION_STORAGE: new ShopifySession.MongoDBSessionStorage(new URL(DB_URL!), DB_NAME!)
+    SESSION_STORAGE: process.env.NODE_ENV === "development" ? undefined : new ShopifySession.MongoDBSessionStorage(new URL(DB_URL!), DB_NAME!)
   });
 }

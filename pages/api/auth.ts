@@ -10,7 +10,6 @@ export default async (
 ) => {
   try {
     const session = await Shopify.Auth.validateAuthCallback(req, res, req.query as unknown as AuthQuery);
-    console.log(session.accessToken);
     return res.redirect(`/?host=${req.query.host}&shop=${req.query.shop}`);
   } catch (error) {
     res.status(500).json({ message: (error as Error).message})
